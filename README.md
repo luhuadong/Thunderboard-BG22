@@ -45,3 +45,8 @@ Thunderboard BG22 开发套件是 Silicon Labs 提供的一个小型原型平台
 - 开源 Andriod 和 IOS demo 应用程序
 - 软件开发平台 Simplicity Studio
 
+
+
+## 资料
+
+- <https://www.silabs.com/wireless/gecko-series-2/efr32bg22>
