@@ -160,3 +160,74 @@ attr handle: 0x003f, end grp handle: 0x0047 uuid: 0000181a-0000-1000-8000-00805f
 attr handle: 0x0048, end grp handle: 0xffff uuid: 1d14d6ee-fd63-4fa1-bfa4-8f47b42119f0
 ```
 
+查看特征
+
+```shell
+[60:A4:23:C9:69:9C][LE]> characteristics 
+handle: 0x0002, char properties: 0x20, char value handle: 0x0003, uuid: 00002a05-0000-1000-8000-00805f9b34fb
+handle: 0x0005, char properties: 0x02, char value handle: 0x0006, uuid: 00002b2a-0000-1000-8000-00805f9b34fb
+handle: 0x0007, char properties: 0x0a, char value handle: 0x0008, uuid: 00002b29-0000-1000-8000-00805f9b34fb
+handle: 0x000a, char properties: 0x0a, char value handle: 0x000b, uuid: 00002a00-0000-1000-8000-00805f9b34fb
+handle: 0x000c, char properties: 0x02, char value handle: 0x000d, uuid: 00002a01-0000-1000-8000-00805f9b34fb
+handle: 0x000f, char properties: 0x02, char value handle: 0x0010, uuid: 00002a29-0000-1000-8000-00805f9b34fb
+handle: 0x0011, char properties: 0x02, char value handle: 0x0012, uuid: 00002a24-0000-1000-8000-00805f9b34fb
+handle: 0x0013, char properties: 0x02, char value handle: 0x0014, uuid: 00002a25-0000-1000-8000-00805f9b34fb
+handle: 0x0015, char properties: 0x02, char value handle: 0x0016, uuid: 00002a27-0000-1000-8000-00805f9b34fb
+handle: 0x0017, char properties: 0x02, char value handle: 0x0018, uuid: 00002a26-0000-1000-8000-00805f9b34fb
+handle: 0x0019, char properties: 0x02, char value handle: 0x001a, uuid: 00002a23-0000-1000-8000-00805f9b34fb
+handle: 0x001c, char properties: 0x12, char value handle: 0x001d, uuid: 00002a56-0000-1000-8000-00805f9b34fb
+handle: 0x0021, char properties: 0x0a, char value handle: 0x0022, uuid: 00002a56-0000-1000-8000-00805f9b34fb
+handle: 0x0026, char properties: 0x12, char value handle: 0x0027, uuid: 00002a19-0000-1000-8000-00805f9b34fb
+handle: 0x002a, char properties: 0x02, char value handle: 0x002b, uuid: ec61a454-ed01-a5e8-b8f9-de9ec026ec51
+handle: 0x002d, char properties: 0x12, char value handle: 0x002e, uuid: f598dbc5-2f01-4ec5-9936-b3d1aa4f957f
+handle: 0x0030, char properties: 0x12, char value handle: 0x0031, uuid: f598dbc5-2f02-4ec5-9936-b3d1aa4f957f
+handle: 0x0033, char properties: 0x08, char value handle: 0x0034, uuid: f598dbc5-2f03-4ec5-9936-b3d1aa4f957f
+handle: 0x0036, char properties: 0x10, char value handle: 0x0037, uuid: c4c1f6e2-4be5-11e5-885d-feff819cdc9f
+handle: 0x0039, char properties: 0x10, char value handle: 0x003a, uuid: b7c4b694-bee3-45dd-ba9f-f3b5e994f49a
+handle: 0x003c, char properties: 0x28, char value handle: 0x003d, uuid: 71e30b8c-4131-4703-b0a0-b0bbba75856b
+handle: 0x0040, char properties: 0x02, char value handle: 0x0041, uuid: 00002a76-0000-1000-8000-00805f9b34fb
+handle: 0x0042, char properties: 0x02, char value handle: 0x0043, uuid: c8546913-bfd9-45eb-8dde-9f8754f4a32e
+handle: 0x0044, char properties: 0x02, char value handle: 0x0045, uuid: 00002a6e-0000-1000-8000-00805f9b34fb
+handle: 0x0046, char properties: 0x02, char value handle: 0x0047, uuid: 00002a6f-0000-1000-8000-00805f9b34fb
+handle: 0x0049, char properties: 0x08, char value handle: 0x004a, uuid: f7bf3564-fb6d-4e53-88a4-5e37e0326063
+```
+
+其中 handle 是特性的句柄，char properties 是特性的属性值，char value handle 是特性值的句柄，uuid 是特性的标识；
+
+我想，可以把特性当作是设备特供的寄存器，寄存器会有属性，如只读、只写或可读可写，在蓝牙协议里面，还有notify的属性，当然，这个通知属性当作是寄存器的中断服务也是说得过去的；那么，第一个handle可以理解为寄存器的编号，第二个handle理解为寄存器的地址，properties即是寄存器属性，如果是可读可写，那么直接读写操作寄存器的地址即可。
+
+比如 LED 对应 Automation IO Service，其 characteristic 为：
+
+```shell
+handle: 0x0021, 
+char properties: 0x0a, # 可读可写
+char value handle: 0x0022, 
+uuid: 00002a56-0000-1000-8000-00805f9b34fb
+```
+
+我们可以通过如下方式打开、关闭 LED
+
+```shell
+[60:A4:23:C9:69:9C][LE]> char-write-req 0x0022 01
+Characteristic value was written successfully
+[60:A4:23:C9:69:9C][LE]> char-write-req 0x0022 00
+Characteristic value was written successfully
+```
+
+而 温度传感器 对应 Environment Service，其 characteristic 为：
+
+```shell
+handle: 0x0044, 
+char properties: 0x02, # 只读
+char value handle: 0x0045, 
+uuid: 00002a6e-0000-1000-8000-00805f9b34fb
+```
+
+我们可以通过如下方式获取当前温度值：
+
+```shell
+[60:A4:23:C9:69:9C][LE]> char-read-hnd 0x0045
+Characteristic value/descriptor: f9 08
+```
+
+`08 f9` 转换成十进制即 22.97 ℃
