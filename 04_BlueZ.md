@@ -107,9 +107,17 @@ F8:31:68:A0:8C:06 (unknown)
 
 
 
-## gattool
+## gatttool
 
-使用 interactive 方式连接设备：
+### 交互模式
+
+使用 interactive 方式（交互模式）连接设备：
+
+```shell
+gatttool -I
+```
+
+或直接带上 BT 地址：
 
 ```shell
 gatttool -b 60:A4:23:C9:69:9C -I
@@ -231,3 +239,42 @@ Characteristic value/descriptor: f9 08
 ```
 
 `08 f9` 转换成十进制即 22.97 ℃
+
+
+
+### 非交互模式
+
+non-interactive
+
+获取温度值：
+
+```shell
+$ gatttool -b 60:A4:23:C9:69:9C --char-read -a 0x0045
+Characteristic value/descriptor: 5f 09
+```
+
+设置 LED：
+
+```shell
+$ gatttool -b 60:A4:23:C9:69:9C --char-write-req -a 0x0022 01
+A value is required
+$ gatttool -b 60:A4:23:C9:69:9C --char-write-req -a 0x0022 00
+A value is required
+```
+
+
+
+```shell
+$ gatttool -b 60:A4:23:C9:69:9C --char-write-req -a 0x0022 00 -n ff
+Characteristic value was written successfully
+$ gatttool -b 60:A4:23:C9:69:9C --char-write-req -a 0x0022 01 -n ff
+Characteristic value was written successfully
+```
+
+
+
+
+
+## 更多
+
+GitHub：<https://github.com/bluez/bluez>
