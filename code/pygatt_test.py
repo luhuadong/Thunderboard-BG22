@@ -2,7 +2,7 @@ import time
 import pygatt
 
 adapter = pygatt.GATTToolBackend()
-counter = 10
+counter = 30
 threshold = 25
 
 try:
