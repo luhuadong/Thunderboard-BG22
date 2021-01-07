@@ -2,6 +2,18 @@
 
 > 测试：THUNDERBOARD #27036 `60:A4:23:C9:69:9C`
 
+[BlueZ](https://github.com/bluez/bluez) 是 Linux 官方蓝牙协议栈。它是一个基于 GPL 发布的开源项目，从 Linux2.4.6 开始便成为 Linux 内核的一部分。其基础代码均是由就职于 Qualcomm 的 Maxim Krasnyansky 完成，包括 HCI、L2CAP、RFCOMM 和基本 socket 的实现。
+
+## 安装
+
+```shell
+$ sudo apt install bluez
+```
+
+安装完 Bluez 协议栈后，系统会增加一些调试工具，包括 bluetootchctl、hciconfig、hcitool 和 gatttool。
+
+本文我们将使用 gatttool 连接 Thunderboard 蓝牙设备对其进行操作，同时我们可以对其数据进行分析，找出这些控制指令。
+
 
 
 ## bluetoothctl
