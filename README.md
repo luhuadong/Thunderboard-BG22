@@ -1,52 +1,89 @@
 # Thunderboard-BG22
-Funpack 第四期 EFR32BG22 Thunderboard 蓝牙开发板
+Funpack 第四期「EFR32BG22 Thunderboard 蓝牙开发板」说明文档
 
 
 
-Thunderboard BG22 开发套件是 Silicon Labs 提供的一个小型原型平台，适用于电池供电的蓝牙应用。上面搭载的 EFR32BG22 蓝牙低功耗 5.2 SoC 可提供低功耗蓝牙、网状网络和误差一米以内的测向精度。
+## 自我介绍
+
+大家好，我是 卢华东 Rudy，业余时间喜欢折腾一些开源软件和硬件，正在努力成为一名真正创客，利用开源和科技的力量做出能促进社会进步的产品。
 
 
 
-本期任务
+## 实现功能
+
+本期任务：
 
 - 通过蓝牙读取开发板上的温度传感器数值；
 - 当温度超过一定门槛后，再通过蓝牙控制开发板上的 LED 灯点亮以作报警。
 
 
 
-![](./images/Thunderboard_EFR32BG22_Hardware_Layout.png)
+针对这次活动和实现的功能，我一共整理了五篇文章：
 
-**开发套件特性**
+1. [Thunderboard BG22 蓝牙开发板](https://luhuadong.blog.csdn.net/article/details/112304058)
+2. [蓝牙技术 Q&A](https://luhuadong.blog.csdn.net/article/details/112306398)
+3. [低功耗蓝牙 BLE 协议架构](https://luhuadong.blog.csdn.net/article/details/112306742)
+4. [BlueZ gatttool 操作 Thunderboard 蓝牙开发板](https://luhuadong.blog.csdn.net/article/details/112307074)
+5. [使用 pygatt 读取 Thunderboard 温度数值并控制 LED](https://luhuadong.blog.csdn.net/article/details/112307393)
 
-- Thunderboard 标准尺寸大小 4.5x3cm
-- EFR32BG22 无线 Gecko SoC
-  - 支持蓝牙 5.2，支持测向和 LE 编码 PHY
-  - ARM Cortex-M33 内核，76.8MHz 的工作频率，512kB 闪存和 32kB RAM
-  - 板载 38.4MHz 晶体
-  - 板载 32.768 晶体
-  - 2.4GHz 匹配网络和贴片天线
+视频和代码链接如下：
 
-- 板载调试
-  - 板载 Jlink 调试器，一路虚拟串口
-  - USB Micro 连接器
-  - Mini Simplicity 调试连接插座
+- 视频介绍：<https://www.bilibili.com/video/BV1Wf4y1y72k/> 
+- 代码仓库：<https://github.com/luhuadong/Thunderboard-BG22>
 
-- 板载可控的电源控制电路，实现传感器的超低功耗
-- 一路用户按键和 LED
-- 传感器
-  - 相对湿度和温度传感器 Si7021
-  - UV 和环境光传感器 Si1133
-  - 霍尔效应传感器 Si7210
-  - 6 轴惯性传感器 Invensense ICM-20648
-- 8Mbit SPI Flash
-- 20pin 2.54mm 通孔接口，用于 GPIO 访问和与外部硬件的连接
-- 数据包跟踪接口 (PTI)
-- USB 或纽扣电池供电
-- 开源 Andriod 和 IOS demo 应用程序
-- 软件开发平台 Simplicity Studio
+Thunderboard 的代码位于 demo/soc_thunderboard_brd4184a；应用程序的代码位于 code/pygatt_test.py，一共 27 行代码。
+
+```python
+import time
+import pygatt
+
+adapter = pygatt.GATTToolBackend()
+counter = 30
+threshold = 25
+
+try:
+    adapter.start()
+    device = adapter.connect('60:A4:23:C9:69:9C')
+
+    while counter > 0:
+        value = device.char_read("00002a6e-0000-1000-8000-00805f9b34fb")
+        temp = (value[1] * 256 + value[0]) / 100
+        print("[{:0>2d}] temp: {:.2f} 'C".format(counter, temp))
+
+        if temp > threshold:
+            device.char_write_handle(0x0022, bytearray([0x01]))  # LED on
+        else:
+            device.char_write_handle(0x0022, bytearray([0x00]))  # LED off
+
+        time.sleep(1)
+        counter -= 1
+
+finally:
+    print("end")
+    adapter.stop()
+```
+
+
+
+## 心得体会
+
+Funpack 第四期活动带来了精致小巧、功能齐全的 Thunderboard BG22 蓝牙开发板。本期任务不多，对于初次接触蓝牙开发的小伙伴来说，难点不在于写多少代码，而在于如何理解蓝牙协议栈及其工作方式。
+
+我在本次实验中，Thunderboard BG22 的固件直接使用 Simplicity Studio 5 的 demo，不需要写一行代码，同时图形化的配置也能让用户更直观地理解蓝牙模型和配置 GATT 服务。应用程序部分，我是直接通过 gatttool 和 pygatt 来完成的，虽然只是很简单的命令行程序，但能帮助我们理解蓝牙模型。
+
+总的来说，通过这次学习，我对 BLE 蓝牙协议栈有了一个大致的了解，也体验到好的开发工具（比如 Simplicity Studio 5）对开发效率的提升。物联网有很大的未来，蓝牙是不可或缺的一种连接方式，还需要不断学习才能掌握蓝牙技术。
+
+最后，再次感谢得捷电子和硬禾学堂，感谢 Funpack 第四期的各位小伙伴！
+
+
+
+​                                                                                                                        2021年01月08日
+
+
 
 
 
 ## 资料
 
 - <https://www.silabs.com/wireless/gecko-series-2/efr32bg22>
+- <https://www.eetree.cn/doc/detail/2119>
